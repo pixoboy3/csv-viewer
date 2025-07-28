@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grouped Words Viewer</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; background: #f8fafd; }
+        table { border-collapse: collapse; width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        th, td { border: 1px solid #b3c6e0; padding: 8px; text-align: left; }
+        th { background: #3f51b5; color: #fff; letter-spacing: 1px; }
+        tr:nth-child(even) { background: #e3eafc; }
+        tr:nth-child(odd) td { background: #fff; }
+        tr:hover td { background: #ffe082 !important; transition: background 0.2s; }
+        input[type="file"] { background: #e3eafc; border: 1px solid #b3c6e0; padding: 6px; border-radius: 4px; }
+        h1 { color: #3f51b5; }
+    </style>
+</head>
+<body>
+    <h1>Grouped Words Table</h1>
+    <input type="file" id="csvFileInput" accept=".csv" style="margin-bottom:1em;" />
+    <table id="csvTable">
+        <thead></thead>
+        <tbody></tbody>
+    </table>
+    <script>
+    document.getElementById('csvFileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const text = event.target.result;
+            const rows = text.trim().split('\n');
+            const table = document.getElementById('csvTable');
+            const thead = table.querySelector('thead');
+            const tbody = table.querySelector('tbody');
+            thead.innerHTML = tbody.innerHTML = '';
+            if (rows.length === 0) return;
+            // Header
+            const headers = rows[0].split(',');
+            const headerRow = document.createElement('tr');
+            headers.forEach(h => {
+                const th = document.createElement('th');
+                th.textContent = h;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            // Data
+            for (let i = 1; i < rows.length; i++) {
+                const cols = rows[i].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+                const tr = document.createElement('tr');
+                cols.forEach(c => {
+                    const td = document.createElement('td');
+                    td.textContent = c.replace(/^"|"$/g, '');
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            }
+        };
+        reader.readAsText(file);
+    });
+    </script>
+    <p>Choose your <code>grouped_words.csv</code> file above to view it as a table.</p>
+</body>
+</html>
